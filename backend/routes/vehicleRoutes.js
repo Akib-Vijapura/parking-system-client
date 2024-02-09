@@ -1,11 +1,13 @@
 import express from 'express'
-import { getVehicle, addVehicle } from '../controllers/vehicleController.js'
+import { getVehicleDetailsByParkingId, addVehicle } from '../controllers/vehicleController.js'
 
 const router = express.Router()
 
 router.route('/')
-    .get(getVehicle)
     .post(addVehicle)
+
+router.route('/:id')
+    .get(getVehicleDetailsByParkingId)
 
 
 export default router
