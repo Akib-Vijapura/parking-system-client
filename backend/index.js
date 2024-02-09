@@ -1,7 +1,9 @@
 import express from "express";
-import vehicleRoutes from "./routes/vehicleRoutes.js";
 import dotenv from "dotenv";
 import cors from "cors";
+
+import vehicleRoutes from "./routes/vehicleRoutes.js";
+import printRoutes from "./routes/printRoutes.js"
 
 
 dotenv.config();
@@ -17,6 +19,7 @@ app.get('/', (req, res) => {
 });
 
 app.use("/api/vehicle", vehicleRoutes);
+app.use("/api/print", printRoutes);
 
 const port = process.env.CLIENT_NODE_PORT;
 app.listen(port, () => {
