@@ -1,6 +1,5 @@
 // Import necessary modules
-"use client";
-import React, { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import ReactToPrint from "react-to-print";
 import NavBar from "../../components/ClientNavBar";
 import {
@@ -12,8 +11,9 @@ import {
   Text,
   Flex,
 } from "@chakra-ui/react";
-import {useNavigate} from "react-router-dom";
-// import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const dateOptions = {
   weekday: "short",
@@ -45,7 +45,7 @@ const getDateTimeFormatted = (dateTime) => {
 };
 
 // Define the main Details component
-const Details = ({ params }) => {
+const Details = () => {
   const [vehicleDetails, setVehicleDetails] = useState({
     vehicleNumber: "",
     vehicleType: "",
@@ -53,34 +53,36 @@ const Details = ({ params }) => {
     vehicleTiming: "",
   });
 
-//   const id = params.id;
+  const { id } = useParams();
+  console.log("url params id : ", id);
   const navigate = useNavigate();
   const componentRef = useRef();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const res = await axios.get(`/api/getvehicledetails/${id}`);
-        // const { vehicleNumber, vehicleType, vehicleCharge, dateTime } =
-        //   res.data.vehicleDetails;
+        const res = await axios.get(`http://localhost:3100/api/vehicle/${id}`);
+        console.log("vehicle res = ", res);
+        const { vehicleNumber, vehicleType, vehicleCharge, dateTime } =
+          res.data.vehicleDetails;
 
-        // setVehicleDetails({
-        //   vehicleNumber,
-        //   vehicleType,
-        //   vehiclePrice: vehicleCharge,
-        //   vehicleTiming: dateTime,
-        // });
+        setVehicleDetails({
+          vehicleNumber,
+          vehicleType,
+          vehiclePrice: vehicleCharge,
+          vehicleTiming: dateTime,
+        });
 
-        // console.log("Vehicle details:", vehicleNumber);
+        console.log("Vehicle details:", vehicleNumber);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
-  }, []);
+  }, [id]);
 
   const addVehicleHandler = () => {
-    navigate.push("/client");
+    navigate("/client");
   };
 
   return (

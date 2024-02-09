@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   Flex,
@@ -11,13 +9,13 @@ import {
   InputGroup,
 } from "@chakra-ui/react";
 import { Radio, RadioGroup, Stack } from "@chakra-ui/react";
-// import { useRouter } from "next/navigation";
 import { Image } from "@chakra-ui/react";
-// import axios from "axios";
+import axios from "axios";
 import NavBar from "../../components/ClientNavBar";
+import { useNavigate } from "react-router-dom";
 
 const AddVehicle = () => {
-  //   const router = useRouter();
+  const navigate = useNavigate();
   // const formBackground = useColorModeValue("gray.170", "gray.700");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,16 +33,16 @@ const AddVehicle = () => {
     try {
       // Check if vehicleNumber and vehicleType are present
       if (vehicle.vehicleNumber && vehicle.vehicleType) {
-        // const response = await axios.post("/api/addvehicle", {
-        //   vehicleNumber: vehicle.vehicleNumber,
-        //   vehicleType: vehicle.vehicleType,
-        // });
+        const response = await axios.post("http://localhost:3100/api/vehicle", {
+          vehicleNumber: vehicle.vehicleNumber,
+          vehicleType: vehicle.vehicleType,
+        });
 
-        // if (response.status === 200) {
-        //   router.push(`/client/details/${response.data.vehicle._id}`);
-        // }
-
-        // console.log("API Response:", response.data);
+        if (response.status === 200) {
+          navigate(`/client/details/${response.data.vehicle._id}`);
+        }
+        const id = response.data.vehicle._id;
+        console.log("API Response:", id);
 
         toast({
           title: "Vehicle Added Successfully",
