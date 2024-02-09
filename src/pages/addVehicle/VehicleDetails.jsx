@@ -85,6 +85,11 @@ const Details = () => {
     navigate("/client");
   };
 
+  const printHandler = async() => {
+    const res = await axios.get("http://localhost:3100/api/print");
+    console.log("printing res = " , res);
+  };
+
   return (
     <>
       <NavBar />
@@ -139,14 +144,10 @@ const Details = () => {
           Add new vehicle
         </Button>
         {/* ReactToPrint component for handling printing */}
-        <ReactToPrint
-          trigger={() => (
-            <Button mb={10} colorScheme="green">
-              Print Ticket
-            </Button>
-          )}
-          content={() => componentRef.current}
-        />
+
+        <Button onClick={printHandler} mb={10} colorScheme="green">
+          Print Ticket
+        </Button>
       </Center>
     </>
   );
