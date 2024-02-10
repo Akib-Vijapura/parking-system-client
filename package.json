@@ -1,6 +1,6 @@
 {
   "name": "parking-system-client",
-  "proxy" : "http://127.0.0.1:3000",
+  "proxy": "http://localhost:3100",
   "private": true,
   "version": "0.0.0",
   "type": "module",

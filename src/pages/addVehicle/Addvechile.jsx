@@ -31,12 +31,20 @@ const AddVehicle = () => {
     setIsLoading(true);
 
     try {
+      const config = {
+        headers: {
+        Authorization : localStorage.getItem("token")
+      }};
+      console.log("config=",config)
       // Check if vehicleNumber and vehicleType are present
       if (vehicle.vehicleNumber && vehicle.vehicleType) {
-        const response = await axios.post("http://localhost:3100/api/vehicle", {
-          vehicleNumber: vehicle.vehicleNumber,
-          vehicleType: vehicle.vehicleType,
-        });
+        const response = await axios.post(
+          `${import.meta.env.VITE_CLIENT_NODE_URL}/api/vehicle`,
+          {
+            vehicleNumber: vehicle.vehicleNumber,
+            vehicleType: vehicle.vehicleType,
+          }, config
+        );
 
         if (response.status === 200) {
           navigate(`/client/details/${response.data.vehicle._id}`);

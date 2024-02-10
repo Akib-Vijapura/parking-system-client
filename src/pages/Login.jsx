@@ -65,7 +65,7 @@ const Login = () => {
     e.preventDefault();
     console.log("before post user=", user);
     try {
-      const response = await axios.post("http://localhost:3100/api/login", {
+      const response = await axios.post( `${import.meta.env.VITE_CLIENT_NODE_URL}/api/login`, {
         username: user.username,
         password: user.password,
       });

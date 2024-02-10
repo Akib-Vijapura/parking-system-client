@@ -85,10 +85,6 @@ const MenuLinks = ({ isOpen }) => {
     });
   };
 
-  setTimeout(() => {
-    localStorage.removeItem("token")
-  } , 1000*123);
-
   return (
     <Box
       display={{ base: isOpen ? "block" : "none", md: "block" }}

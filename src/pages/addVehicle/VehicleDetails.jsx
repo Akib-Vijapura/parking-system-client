@@ -14,6 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import axiosClient from "../../axios/axiosClient";
 
 const dateOptions = {
   weekday: "short",
@@ -85,8 +86,19 @@ const Details = () => {
     navigate("/client");
   };
 
+  const config = {
+        headers: {
+        Authorization : localStorage.getItem("token")
+      }};
+
   const printHandler = async() => {
-    const res = await axios.get("http://localhost:3100/api/print");
+    const res = await axiosClient.get(
+      `${import.meta.env.VITE_CLIENT_NODE_URL}/api/vehicle`,
+          {
+            vehicleNumber: vehicle.vehicleNumber,
+            vehicleType: vehicle.vehicleType,
+          }, config
+    );
     console.log("printing res = " , res);
   };
 
