@@ -74,8 +74,8 @@ const MenuLinks = ({ isOpen }) => {
   const toast = useToast();
   // This will remove cookie and redirect to login page
   const logoutHandler = () => {
-    // deleteCookie("token");
-    navigate.push("/");
+    localStorage.removeItem("token");
+    navigate("/");
     toast({
       title: "Logout Successfull",
       status: "success",
@@ -84,6 +84,11 @@ const MenuLinks = ({ isOpen }) => {
       position: "bottom-right",
     });
   };
+
+  setTimeout(() => {
+    localStorage.removeItem("token")
+  } , 1000*123);
+
   return (
     <Box
       display={{ base: isOpen ? "block" : "none", md: "block" }}

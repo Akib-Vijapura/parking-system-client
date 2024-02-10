@@ -65,12 +65,13 @@ const Login = () => {
     e.preventDefault();
     console.log("before post user=", user);
     try {
-      const response = await axios.post("http://localhost:3000/api/login", {
+      const response = await axios.post("http://localhost:3100/api/login", {
         username: user.username,
         password: user.password,
       });
       console.log(response);
       if (response.status === 200) {
+         localStorage.setItem("token", JSON.stringify(response.data.token));
         navigate("/client");
 
         toast({
