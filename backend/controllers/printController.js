@@ -6,7 +6,72 @@ import { Printer, Image } from "@node-escpos/core";
 import USB from "@node-escpos/usb-adapter";
 // Select the adapter based on your printer type
 
-const device = new USB();
+var isPrinterConnected = false;
+var printerDevice;
+
+
+const findPrinter = () => {
+  console.log("findPrinter called")
+  var device;
+  const devices = USB.findPrinter();
+  if (devices && devices.length)
+    device = devices[0];
+  
+  if (!device) {
+    isPrinterConnected = false
+    //throw new Error("Shaim Cannot find printer");
+    console.log("Shaim Cannot find printer")
+    return
+  }else {
+    printerDevice = new USB();
+    if(!printerDevice) {
+      //throw new Error("Shaim Cannot initiate connection to printer");
+      console.log("Shaim Cannot initiate connection to printer")
+      return
+    }
+    isPrinterConnected = true;
+  }
+  
+}
+
+function delayedFunctionCall(iterations, delay) {
+  // Base case: stop calling functions after reaching the desired number of iterations
+  if (iterations <= 0) {
+    return;
+  }
+
+  // Call your function here
+  //console.log(`Calling function ${iterations}`);
+  findPrinter();
+
+  // Decrement the iteration count
+  iterations--;
+
+  // Set a delay and call the function again
+  setTimeout(() => {
+    delayedFunctionCall(iterations, delay);
+  }, delay);
+}
+
+function infiniteDelayedFunctionCall(delay) {
+  // Call your function here
+  //console.log('Calling function');
+  findPrinter();
+
+  // Set a delay and call the function again
+  setTimeout(() => {
+    infiniteDelayedFunctionCall(delay);
+  }, delay);
+}
+
+
+// Example usage: Call a function in an infinite loop with a delay of 1000 milliseconds (1 second) between each call
+// call function at every half minute ie 30 seconds
+infiniteDelayedFunctionCall(1000 * (60/2));
+
+// Example usage: Call a function 5 times with a delay of 1000 milliseconds (1 second) between each call
+//delayedFunctionCall(5, 1000);
+
 
 // @desc    Fetch all products
 // @route   GET /api/v1/products
@@ -14,26 +79,35 @@ const device = new USB();
 const doPrintJob = async (req, res) => {
   //logger.info('getProducts');
   try {
+
+    if(!isPrinterConnected) {
+      res.stats(501).json({ message: "Printer not connected" });
+      return
+    }
+
     const parkingId = "65c5fee48b6df2699ab3022e"; //req.params.id;
     console.log("parking id=", parkingId);
     console.log("Get Parking Details of Vehicle from Admin Server");
-    const adminResponse = await axios.get(
-      `${process.env.ADMIN_SERVER}/api/getvehicledetails/${parkingId}`
-    );
+
+    const vehicleDetails = await Parking.findById({ _id: id });
+
+    if (!vehicleDetails) {
+      res.stats(404).json({ message: "Vehicle details not found" });
+      return;
+    }
     //const { vehicleNumber, vehicleType, vehicleCharge, dateTime } =
     //adminResponse.data.vehicleDetails;
     //console.log("res=",adminResponse)
 
-    device.open(async function (err) {
+    printerDevice.open(async function (err) {
       if (err) {
-        console.log("Printer not found error =  ", err);
+        res.stats(500).json({ message: "Cannot open Printer device", error: err })
         return;
       }
 
       // encoding is optional
       const options = { encoding: "GB18030" /* default */ };
-      let printer = new Printer(device, options);
-
+      let printer = new Printer(printerDevice, options); 
       // Path to png image
       //const filePath = "./logo.png";
       //const image = await Image.load("./logo.png");
@@ -65,7 +139,7 @@ const doPrintJob = async (req, res) => {
 
       printer.cut().close();*/
       // Font styles
-      printer
+      printerDevice
         .font("a")
         .size(1, 1)
         .text("Bold Text")
@@ -73,7 +147,7 @@ const doPrintJob = async (req, res) => {
         .text("Normal Text");
 
       // Alignment
-      printer
+      printerDevice
         .align("lt") // left alignment
         .text("Left aligned text")
         .align("ct") // center alignment
@@ -82,14 +156,14 @@ const doPrintJob = async (req, res) => {
         .text("Right aligned text");
 
       // Text size
-      printer
+      printerDevice
         .size(2, 2) // double width, double height
         .text("Large Text")
         .size(1, 1) // normal size
         .text("Normal Text");
 
       // Underline
-      printer
+      printerDevice
         .control("LF") // Line feed
         .text("Normal text")
         .control("ESC", "-", 1) // Set underline mode to 1-dot width
@@ -97,17 +171,17 @@ const doPrintJob = async (req, res) => {
         .control("ESC", "-", 0); // Turn off underline mode
 
       // Bold
-      printer.font("b").text("Bold Text").font("a"); // Switch back to normal font
+      printerDevice.font("b").text("Bold Text").font("a"); // Switch back to normal font
 
       // Cut paper
-      printer.cut();
+      printerDevice.cut();
 
       // Close connection
-      printer.close();
+      printerDevice.close();
     });
 
     console.log("do print job");
-    res.status(200).json(adminResponse.data);
+    res.status(200).json(adminResponse.data)
   } catch (err) {
     //logger.error(`Error in getProducts err=${err}`);
     console.log("error=", err);

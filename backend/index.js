@@ -4,7 +4,7 @@ import cors from "cors";
 import connectDB from "./utils/db.js";
 
 import vehicleRoutes from "./routes/vehicleRoutes.js";
-//import printRoutes from "./routes/printRoutes.js";
+import printRoutes from "./routes/printRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
 
 dotenv.config();
@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/vehicle", vehicleRoutes);
-//app.use("/api/print", printRoutes);
+app.use("/api/print", printRoutes);
 app.use("/api/login", loginRoutes);
 
 const port = process.env.CLIENT_NODE_PORT;
