@@ -14,7 +14,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import axiosClient from "../../axios/axiosClient";
 
 const dateOptions = {
   weekday: "short",
@@ -87,25 +86,36 @@ const Details = () => {
   };
 
   const config = {
-        headers: {
-        Authorization : localStorage.getItem("token")
-      }};
-
-  const printHandler = async() => {
-    const res = await axiosClient.get(
-      `${import.meta.env.VITE_CLIENT_NODE_URL}/api/vehicle`,
-          {
-            vehicleNumber: vehicle.vehicleNumber,
-            vehicleType: vehicle.vehicleType,
-          }, config
-    );
-    console.log("printing res = " , res);
+    headers: {
+      Authorization: localStorage.getItem("token"),
+    },
   };
+
+  const printHandler = async () => {
+    const res = await axios.get(
+      `${import.meta.env.VITE_CLIENT_NODE_URL}/api/print/${id}`
+    );
+    // navigate("/client")
+    console.log("printing res = ", res);
+  };
+
+  
+  let newVehicleType = "";
+
+  if (vehicleDetails.vehicleType === "TWO") {
+    newVehicleType = "2-WHEELER";
+  } else if (vehicleDetails.vehicleType === "THREE") {
+    newVehicleType = "3-WHEELER";
+  } else if (vehicleDetails.vehicleType === "FOUR") {
+    newVehicleType = "4-WHEELER";
+  } else if (vehicleDetails.vehicleType === "BUS") {
+    newVehicleType = "BUS";
+  }
 
   return (
     <>
       <NavBar />
-      <Center as="section" h="70vh">
+      <Center as="section" h="65vh">
         <Box
           ref={componentRef}
           id="printMe"
@@ -137,9 +147,9 @@ const Details = () => {
             Water Ville
           </Heading>
           <Text>
-            <b>Number : </b> {vehicleDetails.vehicleNumber}
+            <b>Vehicle Number : </b> {vehicleDetails.vehicleNumber}
             <br />
-            <b>Type : </b> {vehicleDetails.vehicleType}
+            <b>Vehicle Type : </b> {newVehicleType}
             <br />
             <b>Price : </b>
             {vehicleDetails.vehiclePrice}
@@ -152,12 +162,12 @@ const Details = () => {
       </Center>
       <Center>
         {/* Centered buttons */}
-        <Button onClick={addVehicleHandler} mr={4} mb={10} colorScheme="teal">
+        <Button onClick={addVehicleHandler} mr={4} colorScheme="teal">
           Add new vehicle
         </Button>
         {/* ReactToPrint component for handling printing */}
 
-        <Button onClick={printHandler} mb={10} colorScheme="green">
+        <Button onClick={printHandler} colorScheme="green">
           Print Ticket
         </Button>
       </Center>

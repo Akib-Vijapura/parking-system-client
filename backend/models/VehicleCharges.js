@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const VehicleChargeSchema = mongoose.Schema({
+const VehicleChargeSchema = new  mongoose.Schema({
   twoWheeler: {
     type: Number,
     default: 30,
