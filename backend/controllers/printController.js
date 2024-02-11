@@ -110,7 +110,7 @@ const doPrintJob = async (req, res) => {
     if (checkPrinterConnected() == false) {
       const msg = "ERROR: Printer not connected, try again after connecting.";
       logger.error(`doPrintJob err=${msg}`);
-      res.status(501).json({ message: msg, error: msg });
+      res.status(505).json({ message: msg, error: msg });
       return;
     }
 

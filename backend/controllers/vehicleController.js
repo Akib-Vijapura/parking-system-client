@@ -4,6 +4,38 @@ import Parking from "../models/Parking.js";
 import VehicleCharges from "../models/VehicleCharges.js";
 import logger from "../logger/logger.js";
 
+import USB from "@node-escpos/usb-adapter";
+// Select the adapter based on your printer type
+
+
+const checkPrinterConnected = () => {
+    var isPrinterConnected = false;
+    var printerDevice;
+  logger.info("findPrinter called");
+  logger.info(`findPrinter(): isPrinterConnected=${isPrinterConnected}`);
+  var device;
+  const devices = USB.findPrinter();
+  if (devices && devices.length) {
+    device = devices[0];
+  }
+  
+  if (device == undefined) {
+    isPrinterConnected = false;
+    logger.error(`findPrinter(): Cannot find printer device=${device}`);
+  } else if(!device) {
+    isPrinterConnected = false;
+    logger.error(`findPrinter(): Cannot find printer device=${device}`);
+  } else {
+    printerDevice = new USB();
+    if (!printerDevice) {
+      logger.error("findPrinter(): Cannot initiate connection to printer");
+    }
+    isPrinterConnected = true;
+   
+  }
+  return isPrinterConnected;
+};
+
 const getVehicleCharge = async (vehicleType) => {
   let newVehicleCharge = 0;
   try {
@@ -77,6 +109,13 @@ function generateUniqueToken(vehicleNumber) {
 
 const addVehicleToParking = async (req, res) => {
   try {
+
+    if(checkPrinterConnected() == false) {
+      const msg = "ERROR: Printer not connected, try again after connecting.";
+      logger.error(`${msg}`);
+      return res.status(505).json({ message: msg, error: msg });
+    }
+
     const body = await req.body;
     const { vehicleNumber, vehicleType } = body;
     const vehicleNumberToUpper = vehicleNumber.toUpperCase();
