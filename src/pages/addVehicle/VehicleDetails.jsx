@@ -61,7 +61,11 @@ const Details = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:3100/api/vehicle/${id}`);
+       
+        const res = await axios.get(
+          `http://localhost:3100/api/vehicle/${id}`,
+          config
+        );
         console.log("vehicle res = ", res);
         const { vehicleNumber, vehicleType, vehicleCharge, dateTime } =
           res.data.vehicleDetails;
@@ -93,7 +97,8 @@ const Details = () => {
 
   const printHandler = async () => {
     const res = await axios.get(
-      `${import.meta.env.VITE_CLIENT_NODE_URL}/api/print/${id}`
+      `${import.meta.env.VITE_CLIENT_NODE_URL}/api/print/${id}`,
+      config
     );
     // navigate("/client")
     console.log("printing res = ", res);

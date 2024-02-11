@@ -9,8 +9,9 @@ import {
   Image,
   useToast,
 } from "@chakra-ui/react";
-// import { deleteCookie } from "cookies-next";
 import { Link, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
 const NavBar = (props) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -85,6 +86,11 @@ const MenuLinks = ({ isOpen }) => {
     });
   };
 
+  const token = localStorage.getItem("token");
+  const decodedToken = jwtDecode(token);
+  const username = decodedToken.user.username;
+  const window = decodedToken.user.windowNo;
+
   return (
     <Box
       display={{ base: isOpen ? "block" : "none", md: "block" }}
@@ -105,9 +111,14 @@ const MenuLinks = ({ isOpen }) => {
           <MenuItem to="/client">Add Vehicles </MenuItem>
         </Link>
 
-        <Link to="/admin">
-          <MenuItem to="/admin">Admin</MenuItem>
-        </Link>
+        <MenuItem>
+          Ticket window <b style={{ color: "teal" }}>{window}</b>
+        </MenuItem>
+
+        <MenuItem>
+          User <b style={{ color: "teal" }}>{username}</b>
+        </MenuItem>
+
         <MenuItem isLast>
           <Button onClick={logoutHandler} colorScheme="teal">
             Logout
