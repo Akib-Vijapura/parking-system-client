@@ -11,7 +11,7 @@ import VehicleCharges from "../models/VehicleCharges.js";
 var isPrinterConnected = false;
 var printerDevice;
 
-const findPrinter = () => {
+const checkPrinterConnected = () => {
   logger.info("findPrinter called");
   logger.info(`findPrinter(): isPrinterConnected=${isPrinterConnected}`);
   var device;
@@ -22,7 +22,6 @@ const findPrinter = () => {
     isPrinterConnected = false;
     //throw new Error("Shaim Cannot find printer");
     logger.warn("findPrinter(): Cannot find printer");
-    return;
   } else {
     printerDevice = new USB();
     if (!printerDevice) {
@@ -31,7 +30,9 @@ const findPrinter = () => {
       return;
     }
     isPrinterConnected = true;
+   
   }
+  return isPrinterConnected;
 };
 
 function delayedFunctionCall(iterations, delay) {
@@ -66,7 +67,7 @@ function infiniteDelayedFunctionCall(delay) {
 
 // Example usage: Call a function in an infinite loop with a delay of 1000 milliseconds (1 second) between each call
 // call function at every half minute ie 30 seconds
-infiniteDelayedFunctionCall(1000 * (60 / 2));
+//infiniteDelayedFunctionCall(1000 * (60 / 2));
 
 // Example usage: Call a function 5 times with a delay of 1000 milliseconds (1 second) between each call
 //delayedFunctionCall(5, 1000);
@@ -106,10 +107,10 @@ const getDateTimeFormatted = (dateTime) => {
 const doPrintJob = async (req, res) => {
   //logger.info('getProducts');
   try {
-    if (!isPrinterConnected) {
-      const msg = "Printer not connected";
-      logger.error(msg);
-      res.stats(501).json({ message: msg });
+    if (checkPrinterConnected() == false) {
+      const msg = "ERROR: Printer not connected, try again after connecting.";
+      logger.error(`doPrintJob err=${msg}`);
+      res.status(501).json({ message: msg, error: msg });
       return;
     }
 

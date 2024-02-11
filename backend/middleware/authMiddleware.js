@@ -8,14 +8,23 @@ const protect = async (req, res, next) => {
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
             token = token = req.headers.authorization.split(' ')[1]
-            const decoded = await verifyAuth(token)
+            const [valid, decoded] = await verifyAuth(token)
+            logger.info("valid=",valid)
 
+            
+            if(!valid) {
+                const msg = "Not a valid token"
+                logger.error(`auth middleware msg=${msg} err=${decoded}`)
+                res.status(401).json({message: msg, error: decoded})
+            }
+
+            logger.info(`decoded token=${decoded}`)
             req.user = await User.findById(decoded.user.id).select('-password')
             
             if(!req.user) {
                 const msg = "Not authorized, for this user"
-                logger.error(`auth middleware msg=${msg} error=${error}`)
-                res.status(401).json({message: msg, error: error})
+                logger.error(`auth middleware msg=${msg}`)
+                res.status(401).json({message: msg})
             }
 
             next()

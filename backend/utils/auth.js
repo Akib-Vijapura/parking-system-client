@@ -8,18 +8,20 @@ export class AuthError extends Error {}
  */
 export async function verifyAuth(token) {
   //console.log("VERIFY AUTH")
-  console.log("verifyAuth token=",token)
+  logger.info("verifyAuth token=",token)
 
-  if (!token) throw new AuthError('Missing user token')
+  if (!token) {
+    return [0, "Missing user token"]
+  }
 
   try {
     const verified = await jwtVerify(
       token,
       new TextEncoder().encode(process.env.JWT_SECRET)
     )
-    return verified.payload
+    return [1, verified.payload]
   } catch (err) {
-    throw new AuthError('Your token has expired.')
+    return [0, err]
   }
 }
 
