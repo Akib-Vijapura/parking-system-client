@@ -130,6 +130,8 @@ const doPrintJob = async (req, res) => {
     const vehicleType = parkingRes.vehicleType;
     const vehicleCharge = parkingRes.vehicleCharge;
     const dateTime = parkingRes.dateTime;
+    const operatorName = req.user.username
+    const windowNo = req.user.windowNo
 
     const newFormattedDate = getDateTimeFormatted(dateTime);
 
@@ -187,7 +189,9 @@ const doPrintJob = async (req, res) => {
       printer = await printer.image(image, "D24");
       printer
         .size(2, 2)
-        .text("WATER VILLE")
+        .text("WATER VILLE WATER PARK")
+        .size(1, 1)
+        .text("By Matadar Group")
         .size(1, 1)
         .text("Himatnagar Bypass, Parabada, Gujarat 383220")
         .size(1, 1)
@@ -207,6 +211,10 @@ const doPrintJob = async (req, res) => {
         .text(`ENTRY DATE : ${datePart}`)
         .feed()
         .text(`ENTRY TIME : ${timePart}`)
+        .feed()
+        .text(`WINDOW NO  : ${windowNo}`)
+        .feed()
+        .text(`OPERATOR   : ${operatorName}`)
         .feed()
         .align("ct")
         .size(2, 2)
@@ -234,7 +242,7 @@ const doPrintJob = async (req, res) => {
 
     res.status(500).json({
       message: msg,
-      error: err,
+      error: err.message,
     });
   }
 };

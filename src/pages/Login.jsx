@@ -71,7 +71,8 @@ const Login = () => {
       });
       console.log(response);
       if (response.status === 200) {
-         localStorage.setItem("token", JSON.stringify(response.data.token));
+        const tokenWithBearer = `Bearer ${JSON.stringify(response.data.token)}`;
+        localStorage.setItem("token", tokenWithBearer);
         navigate("/client");
 
         toast({

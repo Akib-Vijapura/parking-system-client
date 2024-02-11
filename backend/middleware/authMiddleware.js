@@ -10,8 +10,14 @@ const protect = async (req, res, next) => {
             token = token = req.headers.authorization.split(' ')[1]
             const decoded = await verifyAuth(token)
 
-            req.user = await User.findById(decoded.id).select('-password')
+            req.user = await User.findById(decoded.user.id).select('-password')
             
+            if(!req.user) {
+                const msg = "Not authorized, for this user"
+                logger.error(`auth middleware msg=${msg} error=${error}`)
+                res.status(401).json({message: msg, error: error})
+            }
+
             next()
         } catch (error) {
             const msg = "Not authorized, token failed"
