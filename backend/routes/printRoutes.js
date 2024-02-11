@@ -1,13 +1,14 @@
 import express from 'express'
 import { doPrintJob } from '../controllers/printController.js'
+import { protect } from '../middleware/authMiddleware.js'
 
 const router = express.Router()
 
-router.route('/')
-    .get(doPrintJob)
+// router.route('/')
+//     .get(protect, doPrintJob)
 
 router.route('/:id')
-    .get(doPrintJob)
+    .get(protect, doPrintJob)
 
 
 export default router

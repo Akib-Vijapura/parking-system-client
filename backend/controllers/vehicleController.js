@@ -75,7 +75,7 @@ function generateUniqueToken(vehicleNumber) {
   return uniqueToken;
 }
 
-const addVehicle = async (req, res) => {
+const addVehicleToParking = async (req, res) => {
   try {
     const body = await req.body;
     const { vehicleNumber, vehicleType } = body;
@@ -134,4 +134,4 @@ const getVehicleDetailsByParkingId = async (req, res) => {
   }
 };
 
-export { addVehicle, getVehicleDetailsByParkingId };
+export { addVehicleToParking, getVehicleDetailsByParkingId };

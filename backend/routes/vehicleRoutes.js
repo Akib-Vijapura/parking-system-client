@@ -1,13 +1,14 @@
 import express from 'express'
-import { getVehicleDetailsByParkingId, addVehicle } from '../controllers/vehicleController.js'
+import { getVehicleDetailsByParkingId, addVehicleToParking } from '../controllers/vehicleController.js'
+import { protect } from '../middleware/authMiddleware.js'
 
 const router = express.Router()
 
 router.route('/')
-    .post(addVehicle)
+    .post(protect, addVehicleToParking)
 
 router.route('/:id')
-    .get(getVehicleDetailsByParkingId)
+    .get(protect, getVehicleDetailsByParkingId)
 
 
 export default router

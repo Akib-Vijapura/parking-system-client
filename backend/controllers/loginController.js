@@ -67,12 +67,65 @@ const doLogin = async (req, res) =>  {
       id: user._id,
       username: user.username,
       isAdmin: user.isAdmin,
+      window: user.windowNo
     };
 
     // create a next response
     res.status(200).json({
       message: "Logged in successfully",
-      token: generateUserToken(userDataToAppendToToken)
+      token: await generateUserToken(userDataToAppendToToken),
+    });
+
+  } catch (err) {
+    const msg = "ERROR: doLogin"
+    logger.error(`msg=${msg} error=${err}`)
+    res.status(500).json({ message: msg, error: err.message });
+  }
+}
+
+const testLogin = async (req, res) =>  {
+  logger.info("login test route");
+
+  try {
+    const body = await req.body;
+    const { username, password } = body;;
+    logger.info(`trying to login with creds =${username}  ${password}`)
+
+    // check if the user already exists
+    const user = await User.findOne({username});
+
+    logger.info("got user=",user)
+
+    if (!user) {
+      const msg = `User '${username}' doesn't exists`;
+      logger.error(msg)
+      res.status(400).json({ message: msg});
+      return;
+    }
+
+    // check if the password is correct
+
+    const valid = await bcrypt.compare(password, user.password);
+
+    if (!valid) {
+      const msg = "Invalid Credentials";
+      logger.error(msg)
+      res.status(401).json({ message: msg });
+      return;
+    }
+
+    // after we verified the user is valid, we can create a JWT token and return it to the user cookies
+    // first create token data
+    const userDataToAppendToToken = {
+      id: user._id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+    };
+
+    // create a next response
+    res.status(200).json({
+      message: "Logged in successfully",
+      token: generateUserToken(userDataToAppendToToken),
     });
 
   } catch (err) {
@@ -86,4 +139,5 @@ const doLogin = async (req, res) =>  {
 
 export {
     doLogin,
+    testLogin
 };
