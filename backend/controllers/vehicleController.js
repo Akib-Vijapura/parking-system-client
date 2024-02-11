@@ -2,13 +2,14 @@
 
 import Parking from "../models/Parking.js"
 import VehicleCharges from "../models/VehicleCharges.js"
+import logger from '../logger/logger.js';
 
 const getVehicleCharge = async (vehicleType) => {
   let vehicleCharge = 0;
   try {
     const res = await VehicleCharges.find({});
     const data = res[0];
-    console.log("getvehiclecharge data ==> ", data, " ", vehicleType);
+    logger.info(`getVehicleCharge(): data ==> ${data} ${vehicleType}`);
     if (vehicleType === "TWO") {
       vehicleCharge = data.twoWheeler;
     } else if (vehicleType === "THREE") {
@@ -19,11 +20,55 @@ const getVehicleCharge = async (vehicleType) => {
       vehicleCharge = data.bus;
     }
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    const msg = "Not able to get vehicle charge";
+    logger.error(`msg=${msg} err=${err}`)
+    
+    return res.status(500).json({ message: msg, error: err.message });
   } finally {
     return vehicleCharge;
   }
 };
+
+function shortenToken(token) {
+  // Truncate the token to 8 characters
+  const truncatedToken = token.slice(0, 8);
+
+  // Convert the truncated token to a numeric value
+  const numericValue = parseInt(truncatedToken, 36);
+
+  // Use modulo to bring it down to 6 digits
+  const shortenedNumericValue = numericValue % 1000000;
+
+  // Convert back to a string and pad with zeros if needed
+  const shortenedToken = shortenedNumericValue.toString().padStart(6, '0');
+
+  return shortenedToken;
+}
+
+function obfuscateVehicleNumber(vehicleNumber) {
+  // Simple obfuscation logic: take only the first 3 characters and add some random characters
+  const obfuscatedVehicleNumber = vehicleNumber.slice(0, 3) + Math.random().toString(36).substring(2, 6);
+
+  return obfuscatedVehicleNumber;
+}
+
+function generateUniqueToken(vehicleNumber) {
+  // Obfuscate the vehicle number
+  const obfuscatedVehicleNumber = obfuscateVehicleNumber(vehicleNumber);
+
+  // Get the current timestamp
+  const timestamp = Date.now();
+
+  // Format the current time as a string (e.g., 'YYYYMMDDHHmmss')
+  const formattedTime = new Date(timestamp).toISOString().replace(/[-:T.]/g, '');
+
+  console.log(`${obfuscatedVehicleNumber}${formattedTime}`)
+  // Combine the obfuscated vehicle number and formatted time to create the unique token
+  const uniqueToken = shortenToken(`${obfuscatedVehicleNumber}${formattedTime}`);
+
+  return uniqueToken;
+}
+
 
 const addVehicle = async (req, res) => {
   try {
@@ -35,9 +80,13 @@ const addVehicle = async (req, res) => {
     }
     
     var vehicleCharge = await getVehicleCharge(vehicleType);
-    console.log("vehicleCharge ===> ", vehicleCharge);
+    logger.info(`vehicleCharge ===> ${vehicleCharge}`);
+
+    const invoiceNumber = generateUniqueToken(vehicleNumberToUpper);
+    logger.info(`Generated token Number: ${invoiceNumber} for vehicleNumber: ${vehicleNumber}`);
 
     const vehicle = await Parking.create({
+      invoiceNumber,
       vehicleNumber: vehicleNumberToUpper,
       vehicleType,
       vehicleCharge,
@@ -48,7 +97,9 @@ const addVehicle = async (req, res) => {
       vehicle,
     })
 
-  } catch (error) {
+  } catch (err) {
+    const msg = "ERROR: Add Vehicle to Parking";
+    logger.error(`msg=${msg} err=${err}`)
     console.log("ERROR: Add Vehicle to Parking =", error);
     return res.status(500).json({ message: error.message });
   }
@@ -69,9 +120,10 @@ const getVehicleDetailsByParkingId = async (req, res) => {
       vehicleDetails,
     });
 
-  } catch (error) {
-    console.log("ERROR: Getting Parking details for Vehicle=",error);
-    res.stats(500).json({ message: error.message });
+  } catch (err) {
+    const msg = "ERROR: Getting Parking details for Vehicle";
+    logger.error(`msg=${msg} err=${err}`)
+    res.stats(500).json({ message: msg, error: err.message });
   }
 }
 

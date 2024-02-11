@@ -1,4 +1,4 @@
-//import logger from '../../logger/logger.js';
+import logger from '../logger/logger.js';
 
 import User from "../models/User.js"
 import bcrypt from "bcrypt";
@@ -31,20 +31,22 @@ const doLogin = async (req, res) => {
 
 
 const doLogin = async (req, res) =>  {
-  console.log("login POST route");
+  logger.info("login POST route");
 
   try {
     const body = await req.body;
     const { username, password } = body;
-    console.log(`login with creds =${username}  ${password}`)
+    logger.info(`trying to login with creds =${username}  ${password}`)
 
     // check if the user already exists
     const user = await User.findOne({username});
 
-    console.log("got user=",user)
+    logger.info("got user=",user)
 
     if (!user) {
-      res.status(400).json({ message: `User '${username}' doesn't exists` });
+      const msg = `User '${username}' doesn't exists`;
+      logger.error(msg)
+      res.status(400).json({ message: msg});
       return;
     }
 
@@ -53,7 +55,9 @@ const doLogin = async (req, res) =>  {
     const valid = await bcrypt.compare(password, user.password);
 
     if (!valid) {
-      res.status(401).json({ message: "Invalid Credentials" });
+      const msg = "Invalid Credentials";
+      logger.error(msg)
+      res.status(401).json({ message: msg });
       return;
     }
 
@@ -71,9 +75,10 @@ const doLogin = async (req, res) =>  {
       token: generateUserToken(userDataToAppendToToken)
     });
 
-  } catch (error) {
-    console.log("ERROR: doLogin =",error);
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    const msg = "ERROR: doLogin"
+    logger.error(`msg=${msg} error=${err}`)
+    res.status(500).json({ message: msg, error: err.message });
   }
 }
 

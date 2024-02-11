@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import logger from '../logger/logger.js'
 
 const connectDB = async () => {
     try {
@@ -8,9 +9,9 @@ const connectDB = async () => {
             //useNewUrlParser: true,
             //useCreateIndex: true
         })
-        console.log(`MongoDB Connected: ${conn.connection.host}`)
+        logger.info(`MongoDB Connected: ${conn.connection.host}`)
     } catch (error) {
-        console.error(`MongoDB Error: ${error}`)
+        logger.error(`MongoDB Error: ${error}`)
         process.exit(1)
     }
 }

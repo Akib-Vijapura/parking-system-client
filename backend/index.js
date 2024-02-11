@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./utils/db.js";
+import logger from "./logger/logger.js";
 
 import vehicleRoutes from "./routes/vehicleRoutes.js";
 import printRoutes from "./routes/printRoutes.js";
@@ -28,5 +29,5 @@ app.use("/api/login", loginRoutes);
 
 const port = process.env.CLIENT_NODE_PORT;
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  logger.info(`Server is running on port ${port}`);
 });

@@ -1,6 +1,10 @@
 import mongoose from "mongoose";
 
 const parkingSchema = new mongoose.Schema({
+  invoiceNumber: {
+    type: String,
+    required: [true, "Invoice number is missing"]
+  },
   vehicleNumber: {
     type: String,
     required: [true, "Please add vehicle number"],
