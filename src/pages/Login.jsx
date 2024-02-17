@@ -63,13 +63,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     setIsLoading(true);
     e.preventDefault();
-    console.log("before post user=", user);
     try {
       const response = await axios.post( `${import.meta.env.VITE_CLIENT_NODE_URL}/api/login`, {
         username: user.username,
         password: user.password,
       });
-      console.log(response);
       if (response.status === 200) {
         const tokenWithBearer = `Bearer ${response.data.token}`;
         localStorage.setItem("token", tokenWithBearer);
@@ -84,7 +82,6 @@ const Login = () => {
         });
       }
     } catch (error) {
-      console.log("error", error);
 
       toast({
         title: "Invalid credentials",

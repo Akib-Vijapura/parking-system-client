@@ -40,7 +40,6 @@ const getVehicleCharge = async (vehicleType) => {
   let newVehicleCharge = 0;
   try {
     const res = await VehicleCharges.find({});
-    console.log("res = ", res);
     const data = res[0];
     logger.info(`getVehicleCharge(): data ==> ${data} ${vehicleType}`);
     if (vehicleType === "TWO") {
@@ -98,7 +97,6 @@ function generateUniqueToken(vehicleNumber) {
     .toISOString()
     .replace(/[-:T.]/g, "");
 
-  console.log(`${obfuscatedVehicleNumber}${formattedTime}`);
   // Combine the obfuscated vehicle number and formatted time to create the unique token
   const uniqueToken = shortenToken(
     `${obfuscatedVehicleNumber}${formattedTime}`
@@ -147,7 +145,6 @@ const addVehicleToParking = async (req, res) => {
   } catch (err) {
     const msg = "ERROR: Add Vehicle to Parking";
     logger.error(`msg=${msg} err=${err}`);
-    console.log("ERROR: Add Vehicle to Parking =", error);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -155,7 +152,6 @@ const addVehicleToParking = async (req, res) => {
 const getVehicleDetailsByParkingId = async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(`got id=`, id);
     const vehicleDetails = await Parking.findById({ _id: id });
 
     if (!vehicleDetails) {

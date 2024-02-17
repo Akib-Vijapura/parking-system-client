@@ -57,7 +57,6 @@ const Details = () => {
   const toast = useToast();
 
   const { id } = useParams();
-  console.log("url params id : ", id);
   const navigate = useNavigate();
   const componentRef = useRef();
 
@@ -68,7 +67,6 @@ const Details = () => {
           `http://localhost:3100/api/vehicle/${id}`,
           config
         );
-        console.log("vehicle res = ", res);
         const { vehicleNumber, vehicleType, vehicleCharge, dateTime } =
           res.data.vehicleDetails;
 
@@ -79,7 +77,6 @@ const Details = () => {
           vehicleTiming: dateTime,
         });
 
-        console.log("Vehicle details:", vehicleNumber);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -104,7 +101,6 @@ const Details = () => {
         config
       );
       // navigate("/client")
-      console.log("printing res = ", res);
     } catch (error) {
      if (error.response.status === 505) {
        toast({

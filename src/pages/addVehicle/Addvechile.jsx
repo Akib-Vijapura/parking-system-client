@@ -36,7 +36,6 @@ const AddVehicle = () => {
           Authorization: localStorage.getItem("token"),
         },
       };
-      console.log("config=", config);
       // Check if vehicleNumber and vehicleType are present
       if (vehicle.vehicleNumber && vehicle.vehicleType) {
         const response = await axios.post(
