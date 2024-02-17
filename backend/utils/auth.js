@@ -1,27 +1,26 @@
-import { SignJWT, jwtVerify } from 'jose'
-
+import { SignJWT, jwtVerify } from "jose";
+import logger from "../logger/logger.js";
 export class AuthError extends Error {}
-
 
 /**
  * Verifies the user's JWT token and returns its payload if it's valid.
  */
 export async function verifyAuth(token) {
   //console.log("VERIFY AUTH")
-  logger.info("verifyAuth token=",token)
+  logger.info("verifyAuth token=", token);
 
   if (!token) {
-    return [0, "Missing user token"]
+    return [0, "Missing user token"];
   }
 
   try {
     const verified = await jwtVerify(
       token,
       new TextEncoder().encode(process.env.JWT_SECRET)
-    )
-    return [1, verified.payload]
+    );
+    return [1, verified.payload];
   } catch (err) {
-    return [0, err]
+    return [0, err];
   }
 }
 
@@ -42,17 +41,16 @@ export async function verifyAuth(token) {
  */
 export async function generateUserToken(user) {
   const token = await new SignJWT({ user }) // details to  encode in the token
-    .setProtectedHeader({ alg: 'HS256' }) // algorithm
+    .setProtectedHeader({ alg: "HS256" }) // algorithm
     .setJti()
-    .setIssuedAt()  
-    .setExpirationTime(process.env.JWT_EXPIRE)    // token expiration time, e.g., "1 day"
-    .sign(new TextEncoder().encode(process.env.JWT_SECRET))
+    .setIssuedAt()
+    .setExpirationTime(process.env.JWT_EXPIRE) // token expiration time, e.g., "1 day"
+    .sign(new TextEncoder().encode(process.env.JWT_SECRET));
 
-    //console.log("setUserCookie = " , token);
+  //console.log("setUserCookie = " , token);
 
   return token;
 }
-
 
 /**
  * Verifies the user's role is admin type, if not throw eror
@@ -60,8 +58,7 @@ export async function generateUserToken(user) {
  *         1 -> Admin
  */
 export function isAdmin(verifiedTokenPayload) {
-  
-  if(verifiedTokenPayload && !verifiedTokenPayload.user.isAdmin) {
+  if (verifiedTokenPayload && !verifiedTokenPayload.user.isAdmin) {
     //console.log("not admin, so not allowed")
     return 0;
     //throw new AuthError('Only admin allowed')
@@ -69,5 +66,4 @@ export function isAdmin(verifiedTokenPayload) {
     //console.log("User is admin, hence allow access for this route")
     return 1;
   }
-
 }
