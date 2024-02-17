@@ -33,9 +33,10 @@ const AddVehicle = () => {
     try {
       const config = {
         headers: {
-        Authorization : localStorage.getItem("token")
-      }};
-      console.log("config=",config)
+          Authorization: localStorage.getItem("token"),
+        },
+      };
+      console.log("config=", config);
       // Check if vehicleNumber and vehicleType are present
       if (vehicle.vehicleNumber && vehicle.vehicleType) {
         const response = await axios.post(
@@ -43,36 +44,45 @@ const AddVehicle = () => {
           {
             vehicleNumber: vehicle.vehicleNumber,
             vehicleType: vehicle.vehicleType,
-          }, config
+          },
+          config
         );
 
         if (response.status === 200) {
           navigate(`/client/details/${response.data.vehicle._id}`);
+          toast({
+            title: "Vehicle Added Successfully",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom-right",
+          });
         }
-        const id = response.data.vehicle._id;
-        console.log("API Response:", id);
 
-        toast({
-          title: "Vehicle Added Successfully",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
-          position: "bottom-right",
-        });
       } else {
         throw new Error("Please fill in all fields");
       }
     } catch (error) {
       console.error("API Error:", error);
-
-      toast({
-        title: "Error",
-        description: error.message || "Something went wrong",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom-right",
-      });
+      if (error.response.status === 505) {
+        toast({
+          title: "Printer not found",
+          description: "kindly connect your printer",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+      }else {
+        toast({
+          title: "Error",
+          description: error.message || "Something went wrong",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

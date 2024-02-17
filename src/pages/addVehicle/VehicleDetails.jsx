@@ -10,6 +10,7 @@ import {
   Image,
   Text,
   Flex,
+  useToast
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -53,6 +54,8 @@ const Details = () => {
     vehicleTiming: "",
   });
 
+  const toast = useToast();
+
   const { id } = useParams();
   console.log("url params id : ", id);
   const navigate = useNavigate();
@@ -61,7 +64,6 @@ const Details = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-       
         const res = await axios.get(
           `http://localhost:3100/api/vehicle/${id}`,
           config
@@ -96,15 +98,36 @@ const Details = () => {
   };
 
   const printHandler = async () => {
-    const res = await axios.get(
-      `${import.meta.env.VITE_CLIENT_NODE_URL}/api/print/${id}`,
-      config
-    );
-    // navigate("/client")
-    console.log("printing res = ", res);
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_CLIENT_NODE_URL}/api/print/${id}`,
+        config
+      );
+      // navigate("/client")
+      console.log("printing res = ", res);
+    } catch (error) {
+     if (error.response.status === 505) {
+       toast({
+         title: "Printer not found",
+         description: "kindly connect your printer",
+         status: "error",
+         duration: 5000,
+         isClosable: true,
+         position: "bottom-right",
+       });
+     } else {
+       toast({
+         title: "Error",
+         description: error.message || "Something went wrong",
+         status: "error",
+         duration: 5000,
+         isClosable: true,
+         position: "bottom-right",
+       });
+     }
+    }
   };
 
-  
   let newVehicleType = "";
 
   if (vehicleDetails.vehicleType === "TWO") {
