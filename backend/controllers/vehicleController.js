@@ -131,11 +131,16 @@ const addVehicleToParking = async (req, res) => {
       `Generated token Number: ${invoiceNumber} for vehicleNumber: ${vehicleNumber}`
     );
 
+    const username = req.user.username;
+    const windowNo = req.user.windowNo;
+
     const vehicle = await Parking.create({
       invoiceNumber,
       vehicleNumber: vehicleNumberToUpper,
       vehicleType,
       vehicleCharge,
+      username,
+      windowNo
     });
 
     res.status(200).json({
