@@ -96,7 +96,7 @@ const getDateTimeFormatted = (dateTime) => {
     );
     return formattedDate;
   } catch (error) {
-    logger.error(`Error parsing date: ${error}`);
+    logger.info(`Error parsing date: ${error}`);
     return "Invalid Date";
   }
 };
@@ -109,7 +109,7 @@ const doPrintJob = async (req, res) => {
   try {
     if (checkPrinterConnected() == false) {
       const msg = "ERROR: Printer not connected, try again after connecting.";
-      logger.error(`doPrintJob err=${msg}`);
+      logger.info(`doPrintJob err=${msg}`);
       res.status(505).json({ message: msg, error: msg });
       return;
     }
@@ -121,7 +121,7 @@ const doPrintJob = async (req, res) => {
 
     if (!parkingRes) {
       const msg = "Vehicle details not found";
-      logger.error(msg);
+      logger.info(msg);
       res.stats(404).json({ message: msg });
       return;
     }
@@ -176,7 +176,7 @@ const doPrintJob = async (req, res) => {
     printerDevice.open(async function (err) {
       if (err) {
         const msg = "Cannot open Printer device";
-        logger.error(`msg=${msg} err=${err}`);
+        logger.info(`msg=${msg} err=${err}`);
         res.stats(500).json({ message: msg, error: err });
         return;
       }
@@ -237,9 +237,9 @@ const doPrintJob = async (req, res) => {
     logger.info("done with print job");
     res.status(200).json(parkingRes.data);
   } catch (err) {
-    //logger.error(`Error in getProducts err=${err}`);
+    //logger.info(`Error in getProducts err=${err}`);
     const msg = "Error while getting vehicle parking details";
-    logger.error(`msg=${msg} err=${err}`);
+    logger.info(`msg=${msg} err=${err}`);
 
     res.status(500).json({
       message: msg,

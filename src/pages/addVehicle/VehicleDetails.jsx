@@ -30,6 +30,7 @@ const dateOptions = {
 
 const getDateTimeFormatted = (dateTime) => {
   try {
+    console.log("dateTime=", dateTime)
     const dateObj = new Date(dateTime);
     if (isNaN(dateObj.getTime())) {
       throw new Error("Invalid date format");
@@ -53,45 +54,140 @@ const Details = () => {
     vehiclePrice: "",
     vehicleTiming: "",
   });
+  const [loading, setLoading] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(false)
 
   const toast = useToast();
 
-  const { id } = useParams();
+  //const { id } = useParams();
   const navigate = useNavigate();
   const componentRef = useRef();
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
       try {
-        const res = await axios.get(
-          `http://localhost:3100/api/vehicle/${id}`,
-          config
-        );
-        const { vehicleNumber, vehicleType, vehicleCharge, dateTime } =
-          res.data.vehicleDetails;
+        // Retrieve the object from storage
+        var retrievedObject = localStorage.getItem('ticket');
+
+        console.log('retrievedObject: ', JSON.parse(retrievedObject));
+        retrievedObject = JSON.parse(retrievedObject)
+
+        if(retrievedObject === undefined || retrievedObject === null) {
+          toast({
+            title: "Failed to get details",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom-right",
+          });
+        }
 
         setVehicleDetails({
-          vehicleNumber,
-          vehicleType,
-          vehiclePrice: vehicleCharge,
-          vehicleTiming: dateTime,
+          vehicleNumber: retrievedObject.number,
+          vehicleType: retrievedObject.type,
+          vehiclePrice: retrievedObject.charge,
+          vehicleTiming: retrievedObject.dateTime,
         });
 
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.log("Error getting details from storage:", error);
+        toast({
+          title: "Failed to get details",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
       }
-    };
-    fetchData();
-  }, [id]);
 
-  const addVehicleHandler = () => {
-    navigate("/client");
+      setLoading(false);
+    };
+
+    fetchData();
+
+  }, [isDisabled]);
+
+  const disableButton = () => {
+    setIsDisabled(true);
+    //"Wait for 5 seconds..."
+    setTimeout(() => {
+      setIsDisabled(false);
+    }, 5000);
   };
 
   const config = {
     headers: {
       Authorization: localStorage.getItem("token"),
     },
+  };
+
+  const addVehiclePrintAndSaveToDB = async () => {
+    disableButton();
+    try {
+      if (vehicleDetails.vehicleNumber && vehicleDetails.vehicleType && vehicleDetails.vehiclePrice) {
+        const response = await axios.post(
+          `${import.meta.env.VITE_CLIENT_NODE_URL}/api/addandprint`,
+          {
+            vehicleNumber: vehicleDetails.vehicleNumber,
+            vehicleType: vehicleDetails.vehicleType,
+            vehicleCharge: vehicleDetails.vehiclePrice,
+            dateTime: vehicleDetails.vehicleTiming
+          },
+          config
+        );
+
+        if(response.status === 200) {
+          const data = response.data
+          //console.log("data=",data)
+        }
+      }
+    }catch(err) {
+      console.error("API Error:", err);
+     
+      if(err.response.status === 505) {
+        toast({
+          title: "Printer not connected",
+          description: "Please try again",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+      } else if(err.response.status === 502) {
+        toast({
+          title: "Printing failed",
+          description: "Check printer status and try again",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+      } else if (err.response.status === 402) {
+        toast({
+          title: "Vehicle charge is updated",
+          description: "Please add the entry again",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+      }
+      else {
+        toast({
+          title: "Something went wrong",
+          description: "Please try again",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "bottom-right",
+        });
+      }
+    }
+  }
+
+  const addVehicleHandler = () => {
+    navigate("/client");
   };
 
   const printHandler = async () => {
@@ -139,6 +235,7 @@ const Details = () => {
   return (
     <>
       <NavBar />
+      {loading ? ("loading") : (
       <Center as="section" h="65vh">
         <Box
           ref={componentRef}
@@ -184,6 +281,7 @@ const Details = () => {
           </Text>
         </Box>
       </Center>
+      )}
       <Center>
         {/* Centered buttons */}
         <Button onClick={addVehicleHandler} mr={4} colorScheme="teal">
@@ -191,9 +289,13 @@ const Details = () => {
         </Button>
         {/* ReactToPrint component for handling printing */}
 
-        <Button onClick={printHandler} colorScheme="green">
+        <Button onClick={addVehiclePrintAndSaveToDB} colorScheme="green" isDisabled={isDisabled}>
           Print Ticket
         </Button>
+
+        {/* <Box as='button' onClick={disableButton} disabled={isDisabled}>
+            Shaim
+        </Box> */}
       </Center>
     </>
   );
