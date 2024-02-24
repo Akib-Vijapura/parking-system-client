@@ -21,14 +21,14 @@ const checkPrinterConnected = () => {
   
   if (device == undefined) {
     isPrinterConnected = false;
-    logger.error(`findPrinter(): Cannot find printer device=${device}`);
+    logger.info(`findPrinter(): Cannot find printer device=${device}`);
   } else if(!device) {
     isPrinterConnected = false;
-    logger.error(`findPrinter(): Cannot find printer device=${device}`);
+    logger.info(`findPrinter(): Cannot find printer device=${device}`);
   } else {
     printerDevice = new USB();
     if (!printerDevice) {
-      logger.error("findPrinter(): Cannot initiate connection to printer");
+      logger.info("findPrinter(): Cannot initiate connection to printer");
     }
     isPrinterConnected = true;
    
@@ -55,7 +55,7 @@ const getVehicleCharge = async (vehicleType) => {
     return newVehicleCharge;
   } catch (err) {
     const msg = "Not able to get vehicle charge";
-    logger.error(`msg=${msg} err=${err}`);
+    logger.info(`msg=${msg} err=${err}`);
 
     //return //res.status(500).json({ message: msg, error: err.message });
   }
@@ -110,19 +110,20 @@ const addVehicleToParking = async (req, res) => {
 
     if(checkPrinterConnected() == false) {
       const msg = "ERROR: Printer not connected, try again after connecting.";
-      logger.error(`${msg}`);
+      logger.info(`${msg}`);
       return res.status(505).json({ message: msg, error: msg });
     }
 
     const body = await req.body;
-    const { vehicleNumber, vehicleType } = body;
+    var { vehicleNumber, vehicleType } = body;
     const vehicleNumberToUpper = vehicleNumber.toUpperCase();
     if (!vehicleNumberToUpper || !vehicleType) {
-      res.status(401).json({ message: "Please provide all the fields" });
+      return res.status(401).json({ message: "Please provide all the fields" });
     }
 
     // const res = await VehicleCharge.find({});
     // console.log("res = ", res);
+    vehicleType = vehicleType.toUpperCase();
     var vehicleCharge = await getVehicleCharge(vehicleType);
     logger.info(`vehicleCharge ===> ${vehicleCharge}`);
 
@@ -149,7 +150,7 @@ const addVehicleToParking = async (req, res) => {
     });
   } catch (err) {
     const msg = "ERROR: Add Vehicle to Parking";
-    logger.error(`msg=${msg} err=${err}`);
+    logger.info(`msg=${msg} err=${err}`);
     return res.status(500).json({ message: err.message });
   }
 };
@@ -157,10 +158,19 @@ const addVehicleToParking = async (req, res) => {
 const getVehicleDetailsByParkingId = async (req, res) => {
   try {
     const id = req.params.id;
+
+    if(!id || id === null) {
+      const msg = "Provide parking id";
+      logger.info(`msg=${msg}`);
+      return res.stats(404).json({ message: msg });
+    }
+
     const vehicleDetails = await Parking.findById({ _id: id });
 
     if (!vehicleDetails) {
-      res.stats(404).json({ message: "Vehicle details not found" });
+      const msg= "Vehicle details not found";
+      logger.info(`msg=${msg}`);
+      return res.stats(404).json({ message: msg });
     }
 
     res.status(200).json({
@@ -169,9 +179,32 @@ const getVehicleDetailsByParkingId = async (req, res) => {
     });
   } catch (err) {
     const msg = "ERROR: Getting Parking details for Vehicle";
-    logger.error(`msg=${msg} err=${err}`);
-    res.stats(500).json({ message: msg, error: err.message });
+    logger.info(`msg=${msg} err=${err}`);
+    return res.stats(500).json({ message: msg, error: err.message });
   }
 };
 
-export { addVehicleToParking, getVehicleDetailsByParkingId };
+const getVehicleChargeByType = async (req, res) => {
+  try {
+    //logger.info("getCurrentVehicleChargeByType")
+    var vtype = req.params.type;
+    vtype = vtype.toUpperCase();
+    const vehicleCharge = await getVehicleCharge(vtype);
+
+    if (!vehicleCharge) {
+      logger.info(`msg=Vehicle charge fetching failed`);
+      return res.stats(404).json({ message: "Vehicle charge fetching failed" });
+    }
+
+    res.status(200).json({
+      message: "success",
+      vehicleCharge,
+    });
+  } catch (err) {
+    const msg = "ERROR: Vehicle charge fetching failed";
+    logger.info(`msg=${msg} err=${err}`);
+    return res.stats(500).json({ message: msg, error: err.message });
+  }
+};
+
+export { addVehicleToParking, getVehicleDetailsByParkingId, getVehicleChargeByType };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Flex,
   Heading,
@@ -36,7 +36,7 @@ const AddVehicle = () => {
           Authorization: localStorage.getItem("token"),
         },
       };
-      // Check if vehicleNumber and vehicleType are present
+      /*// Check if vehicleNumber and vehicleType are present
       if (vehicle.vehicleNumber && vehicle.vehicleType) {
         const response = await axios.post(
           `${import.meta.env.VITE_CLIENT_NODE_URL}/api/vehicle`,
@@ -60,7 +60,24 @@ const AddVehicle = () => {
 
       } else {
         throw new Error("Please fill in all fields");
+      }*/
+
+      if (vehicle.vehicleNumber && vehicle.vehicleType) {
+        const response = await axios.get(
+          `${import.meta.env.VITE_CLIENT_NODE_URL}/api/vehicle/charge/${vehicle.vehicleType}`,
+          config);
+
+        if(response.status === 200) {
+          const charge = response.data.vehicleCharge
+          const dateTime = Date.now();
+          var testObject = { 'type': vehicle.vehicleType, 'number': vehicle.vehicleNumber, 'charge': charge, 'dateTime': dateTime};
+
+          // Put the object into storage
+          localStorage.setItem('ticket', JSON.stringify(testObject));
+          navigate(`/client/details/${vehicle.vehicleNumber}`);
+        }
       }
+
     } catch (error) {
       console.error("API Error:", error);
       if (error.response.status === 505) {
@@ -72,6 +89,7 @@ const AddVehicle = () => {
           isClosable: true,
           position: "bottom-right",
         });
+        
       }else {
         toast({
           title: "Error",
@@ -86,6 +104,10 @@ const AddVehicle = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    localStorage.removeItem("ticket");
+  },[])
 
   return (
     <>
@@ -115,6 +137,7 @@ const AddVehicle = () => {
               mb={12}
               // isRequired
               style={{ textTransform: "uppercase" }}
+              maxLength="10"
               value={vehicle.vehicleNumber}
               onChange={(event) =>
                 setVehicle({

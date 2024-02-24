@@ -11,9 +11,8 @@ const connectDB = async () => {
         });
         logger.info(`MongoDB Connected: ${conn.connection.host}`)
     } catch (error) {
-        logger.error(`MongoDB Error: ${error}`)
-        process.exit(1)
+        logger.info(`MongoDB Error: ${error}`)
+        //process.exit(1)
     }
 }
-
 export default connectDB;

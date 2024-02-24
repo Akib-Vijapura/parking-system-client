@@ -16,7 +16,7 @@ const protect = async (req, res, next) => {
 
       if (!valid) {
         const msg = "Not a valid token";
-        logger.error(`auth middleware msg=${msg} err=${decoded}`);
+        logger.info(`auth middleware msg=${msg} err=${decoded}`);
         res.status(401).json({ message: msg, error: decoded });
       }
 
@@ -25,22 +25,22 @@ const protect = async (req, res, next) => {
 
       if (!req.user) {
         const msg = "Not authorized, for this user";
-        logger.error(`auth middleware msg=${msg}`);
+        logger.info(`auth middleware msg=${msg}`);
         res.status(401).json({ message: msg });
       }
 
       next();
     } catch (error) {
       const msg = "Not authorized, token failed";
-      logger.error(`auth middleware msg=${msg} error=${error}`);
+      logger.info(`auth middleware msg=${msg} error=${error}`);
       res.status(401).json({ message: msg, error: error });
     }
   }
 
   if (!token) {
     const msg = "Not authorized, no token";
-    logger.error(`auth middleware msg=${msg} error=${error}`);
-    res.status(401).json({ message: msg, error: error });
+    logger.info(`auth middleware msg=${msg}`);
+    res.status(401).json({ message: msg });
   }
 };
 

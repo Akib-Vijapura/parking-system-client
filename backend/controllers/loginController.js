@@ -45,7 +45,7 @@ const doLogin = async (req, res) =>  {
 
     if (!user) {
       const msg = `User '${username}' doesn't exists`;
-      logger.error(msg)
+      logger.info(msg)
       res.status(400).json({ message: msg});
       return;
     }
@@ -56,7 +56,7 @@ const doLogin = async (req, res) =>  {
 
     if (!valid) {
       const msg = "Invalid Credentials";
-      logger.error(msg)
+      logger.info(msg)
       res.status(401).json({ message: msg });
       return;
     }
@@ -78,7 +78,7 @@ const doLogin = async (req, res) =>  {
 
   } catch (err) {
     const msg = "ERROR: doLogin"
-    logger.error(`msg=${msg} error=${err}`)
+    logger.info(`msg=${msg} error=${err}`)
     res.status(500).json({ message: msg, error: err.message });
   }
 }
