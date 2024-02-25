@@ -138,8 +138,18 @@ const Details = () => {
         );
 
         if(response.status === 200) {
-          const data = response.data
+          //const data = response.data
           //console.log("data=",data)
+          toast({
+            title: "Saved and printed",
+            description: "",
+            status: "success",
+            duration: 5000,
+            isClosable: true,
+            position: "bottom-right",
+          });
+
+          navigate("/client");
         }
       }
     }catch(err) {

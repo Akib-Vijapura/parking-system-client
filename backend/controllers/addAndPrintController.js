@@ -213,6 +213,8 @@ const doPrint = async (invoiceNumber, vehicleType, vehicleNumber, vehicleCharge,
       .size(1, 1)
       .text("---------------------------------------------")
       .size(1, 1)
+      .text("Note : Management is not liable for any vehicle damage or loss of personal belongings.")
+      .size(1, 1)
       .text("Thank you for visit")
       .feed();
 
