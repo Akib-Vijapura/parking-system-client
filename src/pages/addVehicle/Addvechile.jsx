@@ -69,8 +69,9 @@ const AddVehicle = () => {
 
         if(response.status === 200) {
           const charge = response.data.vehicleCharge
+          const number = vehicle.vehicleNumber.toUpperCase();
           const dateTime = Date.now();
-          var testObject = { 'type': vehicle.vehicleType, 'number': vehicle.vehicleNumber, 'charge': charge, 'dateTime': dateTime};
+          var testObject = { 'type': vehicle.vehicleType, 'number': number, 'charge': charge, 'dateTime': dateTime};
 
           // Put the object into storage
           localStorage.setItem('ticket', JSON.stringify(testObject));
