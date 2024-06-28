@@ -13,17 +13,15 @@ import { Image } from "@chakra-ui/react";
 import axios from "axios";
 import NavBar from "../../components/ClientNavBar";
 import { useNavigate } from "react-router-dom";
+import WindowWiseData from "../../components/WindowWiseData";
 
 const AddVehicle = () => {
   const navigate = useNavigate();
-  // const formBackground = useColorModeValue("gray.170", "gray.700");
   const [isLoading, setIsLoading] = useState(false);
-
   const [vehicle, setVehicle] = useState({
     vehicleNumber: "",
     vehicleType: "",
   });
-
   const toast = useToast();
 
   const handleSubmit = async (event) => {
@@ -36,62 +34,40 @@ const AddVehicle = () => {
           Authorization: localStorage.getItem("token"),
         },
       };
-      /*// Check if vehicleNumber and vehicleType are present
-      if (vehicle.vehicleNumber && vehicle.vehicleType) {
-        const response = await axios.post(
-          `${import.meta.env.VITE_CLIENT_NODE_URL}/api/vehicle`,
-          {
-            vehicleNumber: vehicle.vehicleNumber,
-            vehicleType: vehicle.vehicleType,
-          },
-          config
-        );
-
-        if (response.status === 200) {
-          navigate(`/client/details/${response.data.vehicle._id}`);
-          toast({
-            title: "Vehicle Added Successfully",
-            status: "success",
-            duration: 5000,
-            isClosable: true,
-            position: "bottom-right",
-          });
-        }
-
-      } else {
-        throw new Error("Please fill in all fields");
-      }*/
 
       if (vehicle.vehicleNumber && vehicle.vehicleType) {
         const response = await axios.get(
           `${import.meta.env.VITE_CLIENT_NODE_URL}/api/vehicle/charge/${vehicle.vehicleType}`,
-          config);
+          config
+        );
 
-        if(response.status === 200) {
-          const charge = response.data.vehicleCharge
+        if (response.status === 200) {
+          const charge = response.data.vehicleCharge;
           const number = vehicle.vehicleNumber.toUpperCase();
           const dateTime = Date.now();
-          var testObject = { 'type': vehicle.vehicleType, 'number': number, 'charge': charge, 'dateTime': dateTime};
+          var testObject = {
+            type: vehicle.vehicleType,
+            number: number,
+            charge: charge,
+            dateTime: dateTime,
+          };
 
-          // Put the object into storage
-          localStorage.setItem('ticket', JSON.stringify(testObject));
+          localStorage.setItem("ticket", JSON.stringify(testObject));
           navigate(`/client/details/${vehicle.vehicleNumber}`);
         }
       }
-
     } catch (error) {
       console.error("API Error:", error);
-      if (error.response.status === 505) {
+      if (error.response && error.response.status === 505) {
         toast({
           title: "Printer not found",
-          description: "kindly connect your printer",
+          description: "Kindly connect your printer",
           status: "error",
           duration: 5000,
           isClosable: true,
           position: "bottom-right",
         });
-        
-      }else {
+      } else {
         toast({
           title: "Error",
           description: error.message || "Something went wrong",
@@ -108,84 +84,106 @@ const AddVehicle = () => {
 
   useEffect(() => {
     localStorage.removeItem("ticket");
-  },[])
+  }, []);
 
   return (
     <>
       <NavBar />
-      <form onSubmit={handleSubmit}>
+      <Flex
+        justify="space-between"
+        align="flex-start"
+        flexDirection={{ base: "column", md: "row" }}
+        p={10}
+      >
         <Flex
-          h="80vh"
-          alignItems="center"
-          justifyContent="center"
-          bg={"whit"}
           flexDirection="column"
+          align="flex-end"
+          mb={{ base: 8, md: 0 }}
+          order={{ base: 2, md: 1 }}
         >
-          <Flex
-            flexDirection="column"
-            bg={"white"}
-            p={12}
-            borderRadius={8}
-            boxShadow="lg"
-          >
-            <Heading mb={10} textAlign="center">
-              Parking Entry
-            </Heading>
-            <Input
-              placeholder="GJ01BT9999"
-              type="string"
-              variant="filled"
-              mb={12}
-              // isRequired
-              style={{ textTransform: "uppercase" }}
-              maxLength="10"
-              value={vehicle.vehicleNumber}
-              onChange={(event) =>
-                setVehicle({
-                  ...vehicle,
-                  vehicleNumber: event.currentTarget.value,
-                })
-              }
-            />
-            <InputGroup mb={6}>
-              <RadioGroup
-                onChange={(value) =>
-                  setVehicle({ ...vehicle, vehicleType: value })
-                }
-                value={vehicle.vehicleType}
-              >
-                <Stack direction="row">
-                  <Radio value="TWO">
-                    {/* <RiMotorbikeFill style={{ fontSize: "30px" }} /> */}
-                    <Image width="50px" src="/twoWheeler.png" />
-                  </Radio>
-                  <Radio value="THREE">
-                    <Image width="40px" src="/threeWheeler.png" />
-                  </Radio>
-                  <Radio value="FOUR">
-                    <Image width="50px" src="/fourWheeler.png" />
-                  </Radio>
-                  <Radio value="BUS">
-                    <Image width="50px" src="/bus.png" />
-                  </Radio>
-                </Stack>
-              </RadioGroup>
-            </InputGroup>
-            <Button
-              type="submit"
-              colorScheme="teal"
-              mb={8}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <CircularProgress isIndeterminate size="24px" color="teal" />
-              ) : (
-                "Add Vehicle"
-              )}
-            </Button>
-          </Flex>
+          <WindowWiseData />
         </Flex>
-      </form>
+        <Flex
+          justify="center"
+          align="center"
+          flexDirection="column"
+          maxWidth="400px"
+          width="100%"
+          marginRight={450}
+          marginTop={150}
+          order={{ base: 1, md: 2 }}
+        >
+          <form onSubmit={handleSubmit} style={{ width: "100%" }}>
+            <Flex
+              bg="white"
+              p={6}
+              borderRadius={8}
+              boxShadow="lg"
+              flexDirection="column"
+            >
+              <Heading mb={6} textAlign="center">
+                Parking Entry
+              </Heading>
+              <Input
+                placeholder="Enter Vehicle Number"
+                type="string"
+                variant="filled"
+                mb={6}
+                style={{ textTransform: "uppercase" }}
+                maxLength="10"
+                value={vehicle.vehicleNumber}
+                onChange={(event) =>
+                  setVehicle({
+                    ...vehicle,
+                    vehicleNumber: event.currentTarget.value,
+                  })
+                }
+              />
+              <InputGroup mb={6}>
+                <RadioGroup
+                  onChange={(value) =>
+                    setVehicle({ ...vehicle, vehicleType: value })
+                  }
+                  value={vehicle.vehicleType}
+                >
+                  <Stack direction="row" spacing={4} justify="center">
+                    <Radio value="TWO">
+                      <Image src="/twoWheeler.png" width="50px" />
+                    </Radio>
+                    <Radio value="THREE">
+                      <Image src="/threeWheeler.png" width="40px" />
+                    </Radio>
+                    <Radio value="FOUR">
+                      <Image src="/fourWheeler.png" width="50px" />
+                    </Radio>
+                    <Radio value="BUS">
+                      <Image src="/bus.png" width="50px" />
+                    </Radio>
+                  </Stack>
+                </RadioGroup>
+              </InputGroup>
+              <Button
+                type="submit"
+                colorScheme="teal"
+                mb={6}
+                isFullWidth={true}
+                isLoading={isLoading}
+                loadingText="Adding Vehicle"
+              >
+                {isLoading ? (
+                  <CircularProgress
+                    isIndeterminate
+                    size="24px"
+                    color="teal"
+                  />
+                ) : (
+                  "Add Vehicle"
+                )}
+              </Button>
+            </Flex>
+          </form>
+        </Flex>
+      </Flex>
     </>
   );
 };
